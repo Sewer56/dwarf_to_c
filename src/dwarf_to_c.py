@@ -249,6 +249,32 @@ def to_c_process(die, by_offset, names, rv, written, preref=False):
                 written[(die.tag,name)] = WRITTEN_FINAL
         else: # DW_TAG.subroutine_type
             typeref = cons
+    elif die.tag == DW_TAG.variable:
+        name = get_str(die, 'name')
+        type_ref = get_type_ref(die, 'type')
+        
+        # Check if it's an external variable
+        is_external = get_flag(die, 'external', False)
+        
+        # Get the location information if available
+        location = die.attr_dict.get('location', None)
+        
+        # Create the variable declaration
+        decl = c_ast.Decl(
+            name=name,
+            quals=[],
+            storage=['extern'] if is_external else [],
+            funcspec=[],
+            type=type_ref(name),
+            init=None,
+            bitsize=None
+        )
+        
+        if written[(die.tag, name)] != WRITTEN_FINAL:
+            rv.append(c_ast.Decl(name, [], ['extern'] if is_external else [], [], type_ref(name), None, None))
+            written[(die.tag, name)] = WRITTEN_FINAL
+        
+        typeref = lambda name: c_ast.TypeDecl(name, [], c_ast.IdentifierType([name]))
     else:
         # reference_type, class_type, set_type   etc
         # variable
