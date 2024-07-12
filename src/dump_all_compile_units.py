@@ -35,14 +35,13 @@ def extract_compile_unit_info(file_path):
 def main():
     # Parses the content of `readelf --debug-dump=info ramboD.elf > out.txt`.
     # Extracting the compilation units.
+    # python3 dump_all_compile_units.py out.txt --name-only --filter /home/disk3/am1lind/NNOpenGL > units.txt
     parser = argparse.ArgumentParser(description='Extract compile unit info from DWARF output.')
     parser.add_argument('file_path', help='Path to the input file')
     parser.add_argument('--name-only', action='store_true', help='Print only DW_AT_name')
     parser.add_argument('--filter', help='Filter DW_AT_comp_dir to start with this prefix')
     
     args = parser.parse_args()
-    
-    print(f"Processing file: {args.file_path}")
     
     info_list = extract_compile_unit_info(args.file_path)
     if info_list:
